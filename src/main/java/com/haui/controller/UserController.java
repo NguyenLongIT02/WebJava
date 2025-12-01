@@ -147,7 +147,8 @@ public class UserController extends HttpServlet {
 				session.removeAttribute("tempPassword");
 
 				// Send welcome email (optional, since we already sent code)
-				sendEmail.sendMail(email, "Welcome to Fruitables", "Registration successful! Welcome to our store.");
+				sendEmail.sendMail(email, "Chào mừng đến với Fruitables",
+						"Đăng ký thành công! Chào mừng bạn đến với cửa hàng của chúng tôi. Hãy tận hưởng mua sắm các sản phẩm tươi ngon nhất.");
 
 				// Login user
 				session.setAttribute(SessionAttr.CURRENT_USER, user);
@@ -188,8 +189,13 @@ public class UserController extends HttpServlet {
 
 		// Gửi email xác nhận với link chứa mã xác thực
 		String verificationLink = "http://localhost:8080/VegetableStoreManager/verify?code=" + code;
-		String emailContent = "Xin chào,\n\nBạn đã đăng ký tài khoản trên Fruitables. Vui lòng nhấp vào link dưới đây để xác nhận email của bạn:\n"
-				+ verificationLink + "\n\nNếu bạn không đăng ký, vui lòng bỏ qua email này.";
+		String emailContent = "Xin chào " + username + ",\n\n"
+				+ "Cảm ơn bạn đã đăng ký tài khoản tại Fruitables - Cửa hàng rau củ quả sạch.\n"
+				+ "Để hoàn tất quá trình đăng ký, vui lòng nhấp vào đường dẫn bên dưới để xác thực email của bạn:\n\n"
+				+ verificationLink + "\n\n"
+				+ "Mã xác thực của bạn là: " + code + "\n\n"
+				+ "Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này.\n\n"
+				+ "Trân trọng,\nĐội ngũ Fruitables";
 		boolean emailSent = sendEmail.sendMail(email, "Fruitables Xác nhận Email", emailContent);
 		if (!emailSent) {
 			req.setAttribute("alert", "Gửi email xác nhận thất bại. Vui lòng thử lại.");

@@ -14,4 +14,25 @@ public interface OrderDao {
     List<com.haui.dto.ProductStat> getTopCustomers(int limit);
 
     List<com.haui.entity.User> getRecentCustomers(int limit);
+
+    int getTotalOrders();
+
+    int getTotalCustomers();
+
+    Map<String, Double> getWeeklyRevenue();
+
+    int getTotalProductViews();
+
+    double getAverageRating();
+
+    double getGrossProfit();
+
+    double getInventoryValue();
+
+    double getCancellationRate();
+
+    // New methods for order management
+    void updateStatus(String id, int status);
+
+    void delete(String id);
 }

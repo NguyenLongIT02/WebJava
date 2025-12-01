@@ -21,7 +21,7 @@ import com.haui.service.Impl.CartServiceImpl;
 import com.haui.service.Impl.ProductServiceImpl;
 
 public class CartItemDaoImpl implements CartItemDao {
-	
+
 	private Connection con;
 	private ConnectionPool pool;
 
@@ -76,17 +76,16 @@ public class CartItemDaoImpl implements CartItemDao {
 		String sql = "UPDATE CartItem SET cat_id = ?, pro_id = ?, quantity = ?, unitPrice=? WHERE id = ?";
 		try {
 			PreparedStatement ps = con.prepareStatement(sql);
-			
+
 			ps.setString(1, cartItem.getCart().getId());
 			ps.setInt(2, cartItem.getProduct().getId());
 			ps.setInt(3, cartItem.getQuantity());
 			ps.setLong(4, cartItem.getUnitPrice());
 			ps.setString(5, cartItem.getId());
-			
-			
+
 			ps.executeUpdate();
 			this.con.commit();
-			
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 			try {
@@ -96,7 +95,7 @@ public class CartItemDaoImpl implements CartItemDao {
 				e1.printStackTrace();
 			}
 		}
-		
+
 	}
 
 	@Override
@@ -126,18 +125,18 @@ public class CartItemDaoImpl implements CartItemDao {
 
 	@Override
 	public CartItem get(int id) {
-		String sql = "SELECT " + 
-				"CartItem.id, " + 
-				"CartItem.quantity, " + 
-				"CartItem.unitPrice, " + 
-				"cart.u_id, " + 
-				"cart.buyDate, " + 
-				"product.name, " + 
-				"product.price " + 
-				"FROM CartItem " + 
-				"INNER JOIN Cart " + 
-				"ON CartItem.cart_id = cart.id " + 
-				"INNER JOIN Product " + 
+		String sql = "SELECT " +
+				"CartItem.id, " +
+				"CartItem.quantity, " +
+				"CartItem.unitPrice, " +
+				"cart.u_id, " +
+				"cart.buyDate, " +
+				"product.name, " +
+				"product.price " +
+				"FROM CartItem " +
+				"INNER JOIN Cart " +
+				"ON CartItem.cart_id = cart.id " +
+				"INNER JOIN Product " +
 				"ON CartItem.pro_id = Product.id " +
 				"WHERE CartItem.id = ?";
 		try {
@@ -147,22 +146,21 @@ public class CartItemDaoImpl implements CartItemDao {
 
 			while (rs.next()) {
 				User user = userDao.get(rs.getInt("u_id"));
-				
+
 				Cart cart = new Cart();
 				cart.setBuyer(user);
 				cart.setBuyDate(rs.getDate("buyDate"));
-				
+
 				Product product = new Product();
 				product.setName(rs.getString("name"));
 				product.setPrice(rs.getLong("price"));
-				
+
 				CartItem cartItem = new CartItem();
 				cartItem.setCart(cart);
 				cartItem.setProduct(product);
 				cartItem.setQuantity(rs.getInt("quantity"));
 				cartItem.setUnitPrice(rs.getLong("unitPrice"));
-				
-				
+
 				return cartItem;
 			}
 		} catch (SQLException e) {
@@ -174,18 +172,18 @@ public class CartItemDaoImpl implements CartItemDao {
 	@Override
 	public List<CartItem> getAll() {
 		List<CartItem> cartItemList = new ArrayList<CartItem>();
-		String sql = "SELECT " + 
-				"CartItem.id, " + 
-				"CartItem.quantity, " + 
-				"CartItem.unitPrice, " + 
-				"cart.u_id, " + 
-				"cart.buyDate, " + 
-				"product.name, " + 
-				"product.price " + 
-				"FROM CartItem " + 
-				"INNER JOIN Cart " + 
-				"ON CartItem.cat_id = Cart.id " + 
-				"INNER JOIN Product " + 
+		String sql = "SELECT " +
+				"CartItem.id, " +
+				"CartItem.quantity, " +
+				"CartItem.unitPrice, " +
+				"cart.u_id, " +
+				"cart.buyDate, " +
+				"product.name, " +
+				"product.price " +
+				"FROM CartItem " +
+				"INNER JOIN Cart " +
+				"ON CartItem.cat_id = Cart.id " +
+				"INNER JOIN Product " +
 				"ON CartItem.pro_id = Product.id ";
 
 		try {
@@ -194,15 +192,15 @@ public class CartItemDaoImpl implements CartItemDao {
 
 			while (rs.next()) {
 				User user = userDao.get(rs.getInt("u_id"));
-				
+
 				Cart cart = new Cart();
 				cart.setBuyer(user);
 				cart.setBuyDate(rs.getDate("buyDate"));
-				
+
 				Product product = new Product();
 				product.setName(rs.getString("name"));
 				product.setPrice(rs.getLong("price"));
-				
+
 				CartItem cartItem = new CartItem();
 				cartItem.setId(rs.getString("id"));
 				cartItem.setCart(cart);
@@ -223,5 +221,44 @@ public class CartItemDaoImpl implements CartItemDao {
 	public List<CartItem> search(String name) {
 		return null;
 	}
-	
+
+	@Override
+	public List<CartItem> getByCartId(String cartId) {
+		List<CartItem> cartItemList = new ArrayList<CartItem>();
+		String sql = "SELECT " +
+				"CartItem.id, " +
+				"CartItem.quantity, " +
+				"CartItem.unitPrice, " +
+				"Product.id AS pro_id, " +
+				"Product.name AS pro_name, " +
+				"Product.price " +
+				"FROM CartItem " +
+				"INNER JOIN Product ON CartItem.pro_id = Product.id " +
+				"WHERE CartItem.cat_id = ?";
+
+		try {
+			PreparedStatement ps = con.prepareStatement(sql);
+			ps.setString(1, cartId);
+			ResultSet rs = ps.executeQuery();
+
+			while (rs.next()) {
+				Product product = new Product();
+				product.setId(rs.getInt("pro_id"));
+				product.setName(rs.getString("pro_name"));
+				product.setPrice(rs.getLong("price"));
+
+				CartItem cartItem = new CartItem();
+				cartItem.setId(rs.getString("id"));
+				cartItem.setProduct(product);
+				cartItem.setQuantity(rs.getInt("quantity"));
+				cartItem.setUnitPrice(rs.getLong("unitPrice"));
+
+				cartItemList.add(cartItem);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return cartItemList;
+	}
+
 }

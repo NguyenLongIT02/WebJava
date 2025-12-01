@@ -19,4 +19,6 @@ public class Cart {
 	private String id;
 	private User buyer;
 	private Date buyDate;
+	private Date deliveryDate;
+	private String deliveryTime;
 }

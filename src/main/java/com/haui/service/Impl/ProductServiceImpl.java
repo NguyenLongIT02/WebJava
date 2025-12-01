@@ -9,7 +9,7 @@ import com.haui.entity.Product;
 import com.haui.service.ProductService;
 
 public class ProductServiceImpl implements ProductService {
-	
+
 	private ProductDao productDao = new ProductDaoImpl();
 
 	@Override
@@ -23,7 +23,8 @@ public class ProductServiceImpl implements ProductService {
 		oldProduct.setName(product.getName());
 		oldProduct.setPrice(product.getPrice());
 		oldProduct.setCategory(product.getCategory());
-		oldProduct.setDes(product.getDes());;
+		oldProduct.setDes(product.getDes());
+		;
 		if (product.getImage() != null) {
 			// XOA ANH CU DI
 			String fileName = oldProduct.getImage();
@@ -77,5 +78,10 @@ public class ProductServiceImpl implements ProductService {
 	@Override
 	public List<Product> seachByName(String productName, int pageNumber, int pageSize) {
 		return productDao.seachByName(productName, pageNumber, pageSize);
+	}
+
+	@Override
+	public void updateViewCount(int id) {
+		productDao.updateViewCount(id);
 	}
 }

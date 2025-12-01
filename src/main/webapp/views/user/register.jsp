@@ -76,6 +76,108 @@
                     <%@ include file="/common/lastBodyScript.jsp" %>
                         <jsp:include page="/common/chatbot.jsp" />
                         <script src="<c:url value='templates/login_register/vendor/jquery/jquery.min.js' />"></script>
+
+                        <!-- JavaScript Validation cho Đăng ký (Câu 1b - Phần 1) -->
+                        <script>
+                            document.getElementById('register-form').addEventListener('submit', function (e) {
+                                // Lấy giá trị từ form
+                                const username = document.getElementById('username').value.trim();
+                                const email = document.getElementById('email').value.trim();
+                                const password = document.getElementById('password').value;
+                                const rePassword = document.getElementById('re_pass').value;
+
+                                // 1. Kiểm tra username không được rỗng
+                                if (username === '') {
+                                    e.preventDefault();
+                                    alert('❌ Tên tài khoản không được để trống!');
+                                    document.getElementById('username').focus();
+                                    return false;
+                                }
+
+                                // 2. Kiểm tra username phải có ít nhất 3 ký tự
+                                if (username.length < 3) {
+                                    e.preventDefault();
+                                    alert('❌ Tên tài khoản phải có ít nhất 3 ký tự!');
+                                    document.getElementById('username').focus();
+                                    return false;
+                                }
+
+                                // 3. Kiểm tra email không được rỗng
+                                if (email === '') {
+                                    e.preventDefault();
+                                    alert('❌ Email không được để trống!');
+                                    document.getElementById('email').focus();
+                                    return false;
+                                }
+
+                                // 4. Kiểm tra định dạng email hợp lệ
+                                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                                if (!emailRegex.test(email)) {
+                                    e.preventDefault();
+                                    alert('❌ Email không đúng định dạng! Vui lòng nhập email hợp lệ (ví dụ: example@gmail.com)');
+                                    document.getElementById('email').focus();
+                                    return false;
+                                }
+
+                                // 5. Kiểm tra mật khẩu không được rỗng
+                                if (password === '') {
+                                    e.preventDefault();
+                                    alert('❌ Mật khẩu không được để trống!');
+                                    document.getElementById('password').focus();
+                                    return false;
+                                }
+
+                                // 6. Kiểm tra độ dài mật khẩu (tối thiểu 6 ký tự)
+                                if (password.length < 6) {
+                                    e.preventDefault();
+                                    alert('❌ Mật khẩu phải có ít nhất 6 ký tự!');
+                                    document.getElementById('password').focus();
+                                    return false;
+                                }
+
+                                // 7. Kiểm tra mật khẩu xác nhận không được rỗng
+                                if (rePassword === '') {
+                                    e.preventDefault();
+                                    alert('❌ Vui lòng xác nhận mật khẩu!');
+                                    document.getElementById('re_pass').focus();
+                                    return false;
+                                }
+
+                                // 8. Kiểm tra mật khẩu và xác nhận mật khẩu phải trùng khớp
+                                if (password !== rePassword) {
+                                    e.preventDefault();
+                                    alert('❌ Mật khẩu xác nhận không khớp! Vui lòng kiểm tra lại.');
+                                    document.getElementById('re_pass').focus();
+                                    return false;
+                                }
+
+                                // Nếu tất cả đều hợp lệ
+                                console.log('✅ Form validation passed!');
+                                return true;
+                            });
+
+                            // Thêm hiệu ứng real-time validation cho email
+                            document.getElementById('email').addEventListener('blur', function () {
+                                const email = this.value.trim();
+                                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                                if (email !== '' && !emailRegex.test(email)) {
+                                    this.style.borderColor = 'red';
+                                } else {
+                                    this.style.borderColor = '';
+                                }
+                            });
+
+                            // Thêm hiệu ứng real-time validation cho password matching
+                            document.getElementById('re_pass').addEventListener('input', function () {
+                                const password = document.getElementById('password').value;
+                                const rePassword = this.value;
+                                if (rePassword !== '' && password !== rePassword) {
+                                    this.style.borderColor = 'red';
+                                } else {
+                                    this.style.borderColor = '';
+                                }
+                            });
+                        </script>
     </body>
 
     </html>

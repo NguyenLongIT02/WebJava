@@ -1,0 +1,103 @@
+/* ===== DASHBOARD GREEN THEME - Phù hợp với web bán rau củ quả ===== */
+
+/* KPI Cards - Tông xanh lá */
+.kpi-box {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+    border-left-color: #155724 !important;
+}
+
+.kpi-box:hover {
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3) !important;
+}
+
+/* Chart Colors - Green Theme */
+:root {
+    --primary-green: #28a745;
+    --secondary-green: #20c997;
+    --dark-green: #155724;
+    --light-green: #d4edda;
+}
+
+/* Biểu đồ doanh thu - Xanh lá */
+#comboChart {
+    background-color: rgba(40, 167, 69, 0.1);
+}
+
+/* Biểu đồ Top Products - Gradient xanh */
+.greenGradient {
+    background: linear-gradient(90deg, #28a745, #20c997, #17a2b8, #6c757d);
+}
+
+/* Phễu chuyển đổi - Màu xanh đậm */
+#funnelChart {
+    filter: hue-rotate(90deg); /* Chuyển sang tông xanh */
+}
+
+/* Gauge - Xanh lá */
+.gauge-val.text-success {
+    color: #28a745 !important;
+    font-weight: 900;
+}
+
+/* Card Titles - Xanh đậm */
+.card-title-box {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white !important;
+}
+
+.card-title-box i {
+    color: #fff !important;
+}
+
+/* Table Headers - Xanh nhạt */
+.table thead {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(40, 167, 69, 0.1);
+}
+
+/* Buttons - Xanh lá */
+.btn-primary, .btn-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border: none;
+}
+
+.btn-primary:hover, .btn-success:hover {
+    background: linear-gradient(135deg, #20c997 0%, #28a745 100%);
+}
+
+/* Sidebar - Xanh đậm */
+.sidebar {
+    background: linear-gradient(180deg, #155724 0%, #28a745 100%);
+}
+
+/* Text Colors */
+.text-primary {
+    color: #28a745 !important;
+}
+
+.text-success {
+    color: #20c997 !important;
+}
+
+/* Border Colors */
+.border-primary {
+    border-color: #28a745 !important;
+}
+
+/* Background Colors */
+.bg-primary {
+    background-color: #28a745 !important;
+}
+
+.bg-success {
+    background-color: #20c997 !important;
+}
+
+/* Chart.js Override - Green Theme */
+.chartjs-render-monitor {
+    filter: saturate(1.2);
+}

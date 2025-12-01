@@ -19,15 +19,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @WebServlet("/chatbot")
 public class ChatbotServlet extends HttpServlet {
 
-    // Replace with your Gemini API key (leave empty or start with YOUR_ to use
-    // fallback)
-    private static final String API_KEY = "YOUR_API_KEY_HERE";
-    private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key="
-            + API_KEY;
+    // Groq API Key
+    // Lấy key tại: https://console.groq.com/keys
+    private static final String API_KEY = "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";
+    private static final String API_URL = "https://api.groq.com/openai/v1/chat/completions";
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
+
         request.setCharacterEncoding("UTF-8");
         response.setContentType("text/plain; charset=UTF-8");
 
@@ -35,66 +35,100 @@ public class ChatbotServlet extends HttpServlet {
         String reply = "Xin lỗi, tôi chưa hiểu câu hỏi.";
 
         if (msg != null && !msg.trim().isEmpty()) {
-            // Try AI first
-            String aiReply = callGeminiAI(msg);
+            System.out.println("📩 Chatbot nhận tin nhắn: " + msg);
+
+            // 1. Ưu tiên gọi Groq AI trước
+            String aiReply = callGroqAI(msg);
+
             if (aiReply != null && !aiReply.isEmpty()) {
+                System.out.println("✅ AI trả lời: " + aiReply);
                 reply = aiReply;
             } else {
-                // Fallback to rule‑based answers
+                // 2. Fallback về rule-based nếu AI lỗi hoặc không có key
+                System.out.println("⚠️ AI không phản hồi, chuyển sang rule-based");
                 reply = getRuleBasedReply(msg.toLowerCase().trim());
             }
         }
+
         response.getWriter().write(reply);
     }
 
-    /** Call Gemini API, return answer or null if not usable */
-    private String callGeminiAI(String text) {
-        // If API key not configured, skip AI call
-        if (API_KEY == null || API_KEY.isEmpty() || API_KEY.startsWith("YOUR_")) {
+    private String callGroqAI(String text) {
+        if (API_KEY.equals("YOUR_GROQ_API_KEY") || API_KEY.isEmpty()) {
+            System.err.println("Groq API Key chưa được cấu hình.");
             return null;
         }
+
         try {
             URL url = new URL(API_URL);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json");
+            conn.setRequestProperty("Authorization", "Bearer " + API_KEY);
             conn.setDoOutput(true);
 
-            String json = "{\"contents\":[{\"parts\":[{\"text\": \"" + escapeJson(text) + "\"}]}}";
+            // Cấu trúc JSON cho Groq (OpenAI compatible)
+            ObjectMapper mapper = new ObjectMapper();
+
+            // Tạo request body bằng Jackson Node
+            com.fasterxml.jackson.databind.node.ObjectNode rootNode = mapper.createObjectNode();
+            rootNode.put("model", "llama-3.3-70b-versatile");
+
+            com.fasterxml.jackson.databind.node.ArrayNode messagesArray = mapper.createArrayNode();
+
+            com.fasterxml.jackson.databind.node.ObjectNode systemMessage = mapper.createObjectNode();
+            systemMessage.put("role", "system");
+            systemMessage.put("content",
+                    "Bạn là một trợ lý ảo của cửa hàng Fruitables, chuyên bán rau củ quả sạch. Hãy trả lời ngắn gọn, thân thiện và hữu ích bằng tiếng Việt.");
+            messagesArray.add(systemMessage);
+
+            com.fasterxml.jackson.databind.node.ObjectNode userMessage = mapper.createObjectNode();
+            userMessage.put("role", "user");
+            userMessage.put("content", text);
+            messagesArray.add(userMessage);
+
+            rootNode.set("messages", messagesArray);
+
+            String jsonInputString = mapper.writeValueAsString(rootNode);
+
             try (OutputStream os = conn.getOutputStream()) {
-                os.write(json.getBytes(StandardCharsets.UTF_8));
+                byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
+                os.write(input, 0, input.length);
             }
 
             int code = conn.getResponseCode();
             if (code == 200) {
                 try (BufferedReader br = new BufferedReader(
                         new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
-                    StringBuilder sb = new StringBuilder();
-                    String line;
-                    while ((line = br.readLine()) != null) {
-                        sb.append(line.trim());
+                    StringBuilder response = new StringBuilder();
+                    String responseLine;
+                    while ((responseLine = br.readLine()) != null) {
+                        response.append(responseLine.trim());
                     }
-                    ObjectMapper mapper = new ObjectMapper();
-                    JsonNode root = mapper.readTree(sb.toString());
-                    return root.path("candidates").get(0).path("content").path("parts").get(0).path("text").asText();
+
+                    // Parse JSON response
+                    JsonNode responseNode = mapper.readTree(response.toString());
+                    return responseNode.path("choices").get(0).path("message").path("content").asText();
                 }
             } else {
-                System.err.println("AI API error code: " + code);
+                System.err.println("Groq API Error Code: " + code);
+                try (BufferedReader br = new BufferedReader(
+                        new InputStreamReader(conn.getErrorStream(), StandardCharsets.UTF_8))) {
+                    StringBuilder response = new StringBuilder();
+                    String responseLine;
+                    while ((responseLine = br.readLine()) != null) {
+                        response.append(responseLine.trim());
+                    }
+                    System.err.println("Error Body: " + response.toString());
+                }
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    /** Simple JSON escaping */
-    private String escapeJson(String txt) {
-        return txt.replace("\"", "\\\"")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r");
-    }
-
-    /** Rule‑based fallback answers */
     private String getRuleBasedReply(String msg) {
         if (msg.contains("rau")) {
             return "Chúng tôi có nhiều loại rau tươi: rau muống, cải xanh, xà lách...";

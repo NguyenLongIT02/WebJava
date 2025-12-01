@@ -21,4 +21,5 @@ public class CartDetails {
 	private String email;
 	private long sumToTal;
 	private Date orderDate;
+	private int status;
 }

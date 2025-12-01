@@ -8,7 +8,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 @NoArgsConstructor
-@AllArgsConstructor	
+@AllArgsConstructor
 @Data
 @Getter
 @Setter
@@ -19,6 +19,9 @@ public class Product {
 	private long price;
 	private String image;
 	private String des;
-	private Category category; //cate_id
+	private Category category; // cate_id
+	private int viewCount;
+	private int quantity;
+	private double importPrice;
 
 }

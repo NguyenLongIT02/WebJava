@@ -17,7 +17,7 @@ import com.haui.service.UserService;
 import com.haui.service.Impl.UserServiceImpl;
 
 public class CartDaoImpl implements CartDao {
-	
+
 	private Connection con;
 	private ConnectionPool pool;
 	private UserService userService = new UserServiceImpl();
@@ -42,15 +42,28 @@ public class CartDaoImpl implements CartDao {
 	@Override
 	public void insert(Cart cart) {
 		// TODO Auto-generated method stub
-		String sql = "INSERT INTO Cart(id,u_id, buyDate) VALUES (?,?,?)";
-		
+		String sql = "INSERT INTO Cart(id,u_id, buyDate, delivery_date, delivery_time) VALUES (?,?,?,?,?)";
+
 		try {
 			PreparedStatement ps = con.prepareStatement(sql);
 			ps.setString(1, cart.getId());
 			ps.setInt(2, cart.getBuyer().getId());
-			java.util.Date utilDate = cart.getBuyDate(); 
+			java.util.Date utilDate = cart.getBuyDate();
 			java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
 			ps.setDate(3, sqlDate);
+
+			if (cart.getDeliveryDate() != null) {
+				ps.setDate(4, cart.getDeliveryDate());
+			} else {
+				ps.setNull(4, java.sql.Types.DATE);
+			}
+
+			if (cart.getDeliveryTime() != null) {
+				ps.setString(5, cart.getDeliveryTime());
+			} else {
+				ps.setNull(5, java.sql.Types.NVARCHAR);
+			}
+
 			ps.executeUpdate();
 			this.con.commit();
 		} catch (SQLException e) {
@@ -67,7 +80,7 @@ public class CartDaoImpl implements CartDao {
 	@Override
 	public void edit(Cart cart) {
 		String sql = "UPDATE cart SET id_user = ?, buyDate = ? WHERE id = ?";
-		
+
 		try {
 			PreparedStatement ps = con.prepareStatement(sql);
 			ps.setInt(1, cart.getBuyer().getId());
@@ -83,13 +96,13 @@ public class CartDaoImpl implements CartDao {
 				e1.printStackTrace();
 			}
 		}
-		
+
 	}
 
 	@Override
 	public void delete(int id) {
 		String sql = "DELETE FROM cart WHERE id = ?";
-		
+
 		try {
 			PreparedStatement ps = con.prepareStatement(sql);
 			ps.setInt(1, id);
@@ -183,8 +196,7 @@ public class CartDaoImpl implements CartDao {
 				cartList.add(cart);
 
 			}
-		} 
-		catch (SQLException e) {
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return cartList;

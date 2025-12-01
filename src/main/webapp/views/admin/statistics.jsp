@@ -8,7 +8,7 @@
                 <%@ include file="/common/admin/headlink.jsp" %>
 
                     <meta charset="UTF-8">
-                    <title>Executive Dashboard - Fruitables</title>
+                    <title>Bảng Điều Khiển - Fruitables</title>
                     <meta content="width=device-width, initial-scale=1.0" name="viewport">
                     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
                         rel="stylesheet">
@@ -39,6 +39,7 @@
                             display: flex;
                             flex-direction: column;
                             gap: 12px;
+                            overflow: hidden;
                         }
 
                         /* HEADER */
@@ -57,7 +58,7 @@
 
                         /* KPI CARDS */
                         .row-kpi {
-                            height: 11vh;
+                            height: 85px;
                             display: flex;
                             gap: 12px;
                             flex-shrink: 0;
@@ -67,7 +68,7 @@
                             flex: 1;
                             background: #fff;
                             border-radius: var(--card-radius);
-                            padding: 0 15px;
+                            padding: 10px 15px;
                             display: flex;
                             flex-direction: column;
                             justify-content: center;
@@ -76,7 +77,20 @@
                         }
 
                         .kpi-box:hover {
-                            transform: translateY(-3px);
+                            transform: translateY(-2px);
+                        }
+
+                        .kpi-label {
+                            font-size: 0.65rem;
+                            color: #888;
+                            text-transform: uppercase;
+                            font-weight: 600;
+                            margin-bottom: 5px;
+                        }
+
+                        .kpi-value {
+                            font-size: 1.5rem;
+                            font-weight: 700;
                         }
 
                         /* CHART CARDS */
@@ -88,16 +102,17 @@
                             display: flex;
                             flex-direction: column;
                             position: relative;
+                            overflow: hidden;
                         }
 
                         .card-title-box {
-                            font-size: 10px;
-                            font-weight: 800;
+                            font-size: 0.7rem;
+                            font-weight: 700;
                             text-transform: uppercase;
                             color: #555;
                             margin-bottom: 8px;
                             border-bottom: 1px solid #eee;
-                            padding-bottom: 5px;
+                            padding-bottom: 6px;
                             display: flex;
                             justify-content: space-between;
                             align-items: center;
@@ -106,221 +121,191 @@
                         .chart-area {
                             flex-grow: 1;
                             position: relative;
-                            width: 100%;
-                            min-height: 0;
-                        }
-
-                        /* LAYOUT */
-                        .row-middle {
-                            height: 40vh;
-                            display: flex;
-                            gap: 12px;
-                            flex-shrink: 0;
-                        }
-
-                        .row-bottom {
-                            flex-grow: 1;
-                            display: flex;
-                            gap: 12px;
                             min-height: 0;
                         }
 
                         /* GAUGE */
-                        .gauge-wrapper {
+                        .gauge-container {
                             display: flex;
-                            justify-content: space-around;
+                            flex-direction: column;
                             align-items: center;
+                            justify-content: center;
                             height: 100%;
                         }
 
-                        .gauge-item {
-                            width: 45%;
-                            position: relative;
-                            text-align: center;
-                        }
-
-                        .gauge-val {
-                            position: absolute;
-                            bottom: 15%;
-                            left: 50%;
-                            transform: translateX(-50%);
-                            font-size: 16px;
-                            font-weight: 800;
-                        }
-
-                        .gauge-lbl {
-                            position: absolute;
-                            bottom: -5px;
-                            left: 50%;
-                            transform: translateX(-50%);
-                            font-size: 9px;
-                            color: #888;
-                            white-space: nowrap;
+                        .gauge-value {
+                            font-size: 18px;
+                            font-weight: 700;
+                            color: #28a745;
+                            margin-top: -10px;
                         }
 
                         /* TABLE */
+                        .table-clean {
+                            font-size: 0.7rem;
+                        }
+
                         .table-clean th {
-                            background: #f1f3f5;
-                            border: none;
-                            font-size: 9px;
-                            padding: 8px;
+                            background: #f8f9fa;
                             font-weight: 700;
-                            color: #666;
+                            text-transform: uppercase;
+                            font-size: 0.65rem;
+                            color: #555;
+                            padding: 8px 10px;
                         }
 
                         .table-clean td {
-                            border-bottom: 1px solid #f1f1f1;
-                            font-size: 10px;
-                            padding: 8px;
+                            padding: 6px 10px;
                             vertical-align: middle;
                         }
 
-                        .table-clean tr:last-child td {
-                            border-bottom: none;
+                        /* ROWS - Cân đối layout */
+                        .content-wrapper {
+                            flex: 1;
+                            display: flex;
+                            flex-direction: column;
+                            gap: 12px;
+                            min-height: 0;
+                            overflow: hidden;
+                        }
+
+                        .row-charts-top {
+                            display: flex;
+                            gap: 12px;
+                            height: 48%;
+                            flex-shrink: 0;
+                        }
+
+                        .row-charts-bottom {
+                            display: flex;
+                            gap: 12px;
+                            height: 48%;
+                            flex-shrink: 0;
                         }
                     </style>
         </head>
 
         <body>
-
             <%@ include file="/common/admin/header.jsp" %>
 
                 <div class="main-content">
-
+                    <!-- TOP BAR -->
                     <div class="top-bar">
-                        <div class="fw-bold text-dark"><i class="fas fa-chart-pie text-success me-2"></i>BÁO CÁO QUẢN
-                            TRỊ
-                            (EXECUTIVE VIEW)</div>
-                        <div class="d-flex gap-2">
-                            <span class="badge bg-light text-dark border px-3 py-2">Đơn vị: USD ($)</span>
-                            <button class="btn btn-success btn-sm px-3"><i class="fas fa-download me-1"></i> Xuất
-                                Excel</button>
+                        <div>
+                            <h6 class="mb-0" style="font-weight: 700; color: #28a745; font-size: 0.95rem;">
+                                <i class="fas fa-chart-line me-2"></i>Executive Dashboard
+                            </h6>
+                        </div>
+                        <div style="font-size: 0.7rem; color: #888;">
+                            <i class="fas fa-calendar-alt me-1"></i>
+                            <span id="currentDate"></span>
                         </div>
                     </div>
 
+                    <!-- KPI ROW -->
                     <div class="row-kpi">
-                        <div class="kpi-box">
-                            <span class="text-muted fw-bold" style="font-size:9px; color: #28a745;">DOANH THU
-                                THUẦN</span>
-                            <div class="d-flex align-items-baseline gap-2">
-                                <span id="kpiRevenue" class="fw-bold fs-4 text-dark">...</span> <span
-                                    class="badge bg-success bg-opacity-10 text-success">▲ 15%</span>
-                            </div>
+                        <div class="kpi-box" style="border-left: 4px solid #28a745;">
+                            <div class="kpi-label">Doanh thu</div>
+                            <div class="kpi-value text-success" id="kpiRevenue">$0</div>
                         </div>
-                        <div class="kpi-box">
-                            <span class="text-muted fw-bold" style="font-size:9px; color: #20c997;">LỢI NHUẬN GỘP</span>
-                            <div class="d-flex align-items-baseline gap-2">
-                                <span class="fw-bold fs-4 text-dark">$4,200</span> <span
-                                    class="badge bg-info bg-opacity-10 text-info">33% Margin</span>
-                            </div>
+                        <div class="kpi-box" style="border-left: 4px solid #20c997;">
+                            <div class="kpi-label">Lợi nhuận gộp</div>
+                            <div class="kpi-value text-info">$0</div>
                         </div>
-                        <div class="kpi-box">
-                            <span class="text-muted fw-bold" style="font-size:9px; color: #0d6efd;">TỔNG ĐƠN HÀNG</span>
-                            <div class="d-flex align-items-baseline gap-2">
-                                <span class="fw-bold fs-4 text-dark">850</span> <span class="text-muted"
-                                    style="font-size:10px;">Avg $14.7</span>
-                            </div>
+                        <div class="kpi-box" style="border-left: 4px solid #17a2b8;">
+                            <div class="kpi-label">Tổng đơn hàng</div>
+                            <div class="kpi-value" style="color: #17a2b8;">0</div>
                         </div>
-                        <div class="kpi-box">
-                            <span class="text-muted fw-bold" style="font-size:9px; color: #6610f2;">KHÁCH HÀNG
-                                MỚI</span>
-                            <div class="d-flex align-items-baseline gap-2">
-                                <span class="fw-bold fs-4 text-dark">125</span> <span
-                                    class="badge bg-primary bg-opacity-10 text-primary">+12</span>
-                            </div>
+                        <div class="kpi-box" style="border-left: 4px solid #ffc107;">
+                            <div class="kpi-label">Khách hàng mới</div>
+                            <div class="kpi-value text-warning">0</div>
                         </div>
-                        <div class="kpi-box">
-                            <span class="text-muted fw-bold" style="font-size:9px; color: #fd7e14;">GIÁ TRỊ TỒN
-                                KHO</span>
-                            <div class="d-flex align-items-baseline gap-2">
-                                <span class="fw-bold fs-4 text-dark">$3,400</span> <span class="text-danger fw-bold"
-                                    style="font-size:10px;">Cao</span>
-                            </div>
+                        <div class="kpi-box" style="border-left: 4px solid #6c757d;">
+                            <div class="kpi-label">Giá trị tồn kho</div>
+                            <div class="kpi-value text-secondary">$0</div>
                         </div>
-                        <div class="kpi-box">
-                            <span class="text-muted fw-bold" style="font-size:9px; color: #dc3545;">TỶ LỆ HỦY</span>
-                            <div class="d-flex align-items-baseline gap-2">
-                                <span class="fw-bold fs-4 text-dark">2.1%</span> <span class="text-success fw-bold"
-                                    style="font-size:10px;">▼ Tốt</span>
-                            </div>
+                        <div class="kpi-box" style="border-left: 4px solid #dc3545;">
+                            <div class="kpi-label">Tỷ lệ hủy</div>
+                            <div class="kpi-value text-danger">0%</div>
                         </div>
                     </div>
 
-                    <div class="row-middle">
-
-                        <div class="chart-card" style="flex: 2;">
-                            <div class="card-title-box">
-                                <span><i class="fas fa-chart-bar me-2 text-primary"></i>HIỆU QUẢ TÀI CHÍNH (FINANCIAL
-                                    PERFORMANCE)</span>
-                            </div>
-                            <div class="chart-area"><canvas id="comboChart"></canvas></div>
-                        </div>
-
-                        <div class="chart-card" style="flex: 1.2;">
-                            <div class="card-title-box">
-                                <span><i class="fas fa-tachometer-alt me-2 text-success"></i>TIẾN ĐỘ KPI (MỤC
-                                    TIÊU)</span>
-                            </div>
-                            <div class="gauge-wrapper">
-                                <div class="gauge-item">
-                                    <canvas id="gaugeSales"></canvas>
-                                    <div class="gauge-val text-success">85%</div>
-                                    <div class="gauge-lbl">Doanh Số</div>
+                    <!-- CONTENT WRAPPER -->
+                    <div class="content-wrapper">
+                        <!-- ROW 1: Revenue + Top Products + Weekly -->
+                        <div class="row-charts-top">
+                            <div class="chart-card" style="flex: 1.5;">
+                                <div class="card-title-box">
+                                    <span><i class="fas fa-chart-bar me-2"></i>Doanh thu theo tháng</span>
                                 </div>
-                                <div class="gauge-item">
-                                    <canvas id="gaugeSat"></canvas>
-                                    <div class="gauge-val text-primary">4.8</div>
-                                    <div class="gauge-lbl">Hài Lòng</div>
+                                <div class="chart-area"><canvas id="comboChart"></canvas></div>
+                            </div>
+                            <div class="chart-card" style="flex: 1;">
+                                <div class="card-title-box">
+                                    <span><i class="fas fa-trophy me-2"></i>Top sản phẩm</span>
+                                </div>
+                                <div class="chart-area"><canvas id="categoryBarChart"></canvas></div>
+                            </div>
+                            <div class="chart-card" style="flex: 1.5;">
+                                <div class="card-title-box">
+                                    <span><i class="fas fa-calendar-week me-2"></i>Doanh thu tuần</span>
+                                </div>
+                                <div class="chart-area"><canvas id="weeklyChart"></canvas></div>
+                            </div>
+                        </div>
+
+                        <!-- ROW 2: Gauges + Funnel + Recent Orders -->
+                        <div class="row-charts-bottom">
+                            <div class="chart-card" style="flex: 0.8;">
+                                <div class="card-title-box">
+                                    <span><i class="fas fa-bullseye me-2"></i>Mục tiêu bán hàng</span>
+                                </div>
+                                <div class="chart-area">
+                                    <div class="gauge-container">
+                                        <canvas id="gaugeSales" style="max-height: 100px;"></canvas>
+                                        <div class="gauge-value">0%</div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="chart-card" style="flex: 1;">
-                            <div class="card-title-box">
-                                <span><i class="fas fa-chart-line me-2 text-info"></i>TỐC ĐỘ BÁN HÀNG (TUẦN NÀY VS
-                                    TRƯỚC)</span>
+                            <div class="chart-card" style="flex: 0.8;">
+                                <div class="card-title-box">
+                                    <span><i class="fas fa-smile me-2"></i>Đánh giá</span>
+                                </div>
+                                <div class="chart-area">
+                                    <div class="gauge-container">
+                                        <canvas id="gaugeSat" style="max-height: 100px;"></canvas>
+                                        <div class="gauge-value" style="color: #0d6efd;">0.0</div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="chart-area"><canvas id="weeklyChart"></canvas></div>
-                        </div>
-
-                    </div>
-
-                    <div class="row-bottom">
-
-                        <div class="chart-card" style="flex: 1.2;">
-                            <div class="card-title-box">
-                                <span><i class="fas fa-trophy me-2 text-warning"></i>XẾP HẠNG DANH MỤC (TOP
-                                    CATEGORIES)</span>
+                            <div class="chart-card" style="flex: 1.2;">
+                                <div class="card-title-box">
+                                    <span><i class="fas fa-filter me-2"></i>Phễu chuyển đổi</span>
+                                </div>
+                                <div class="chart-area"><canvas id="funnelChart"></canvas></div>
                             </div>
-                            <div class="chart-area"><canvas id="categoryBarChart"></canvas></div>
-                        </div>
 
-                        <div class="chart-card" style="flex: 0.8;">
-                            <div class="card-title-box">
-                                <span><i class="fas fa-filter me-2 text-secondary"></i>PHỄU CHUYỂN ĐỔI</span>
-                            </div>
-                            <div class="chart-area"><canvas id="funnelChart"></canvas></div>
-                        </div>
-
-                        <div class="chart-card" style="flex: 2; overflow: hidden;">
-                            <div class="card-title-box">
-                                <span><i class="fas fa-list-ul me-2"></i>GIAO DỊCH MỚI NHẤT</span>
-                                <a href="#" class="text-decoration-none text-primary">Chi tiết</a>
-                            </div>
-                            <div style="overflow-y: auto; flex-grow: 1;">
-                                <table class="table table-clean w-100 mb-0 table-hover" id="recentOrdersTable">
-                                    <thead>
-                                        <tr>
-                                            <th>KHÁCH HÀNG</th>
-                                            <th>EMAIL</th>
-                                            <th>TỔNG ($)</th>
-                                            <th>NGÀY MUA</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <!-- Data will be populated here -->
-                                    </tbody>
-                                </table>
+                            <div class="chart-card" style="flex: 2.2; overflow: hidden;">
+                                <div class="card-title-box">
+                                    <span><i class="fas fa-list-ul me-2"></i>Đơn hàng gần đây</span>
+                                    <a href="#" class="text-decoration-none text-primary"
+                                        style="font-size: 0.65rem;">Xem tất cả</a>
+                                </div>
+                                <div style="overflow-y: auto; flex-grow: 1;">
+                                    <table class="table table-clean w-100 mb-0 table-hover" id="recentOrdersTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Khách hàng</th>
+                                                <th>Email</th>
+                                                <th>Tổng ($)</th>
+                                                <th>Ngày</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Data will be populated here -->
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -330,12 +315,32 @@
                 <script>
                     async function loadDashboardData() {
                         try {
-                            const response = await fetch('<c:url value="/api/admin/dashboard-stats"/>');
+                            const response = await fetch('<c:url value="/api/admin/dashboard-stats" />');
                             if (!response.ok) throw new Error('Network response was not ok');
                             const data = await response.json();
 
-                            // 1. Update Total Revenue
+                            // 1. Update KPIs
                             document.getElementById('kpiRevenue').innerText = '$' + data.totalRevenue.toLocaleString();
+
+                            // Update Gross Profit
+                            const kpiProfit = document.querySelectorAll('.kpi-box')[1].querySelector('.kpi-value');
+                            if (kpiProfit) kpiProfit.innerText = '$' + data.grossProfit.toLocaleString(undefined, { maximumFractionDigits: 0 });
+
+                            // Update Total Orders
+                            const kpiOrders = document.querySelectorAll('.kpi-box')[2].querySelector('.kpi-value');
+                            if (kpiOrders) kpiOrders.innerText = data.totalOrders;
+
+                            // Update New Customers (Total Customers for now)
+                            const kpiCustomers = document.querySelectorAll('.kpi-box')[3].querySelector('.kpi-value');
+                            if (kpiCustomers) kpiCustomers.innerText = data.totalCustomers;
+
+                            // Update Inventory Value
+                            const kpiInventory = document.querySelectorAll('.kpi-box')[4].querySelector('.kpi-value');
+                            if (kpiInventory) kpiInventory.innerText = '$' + data.inventoryValue.toLocaleString(undefined, { maximumFractionDigits: 0 });
+
+                            // Update Cancellation Rate
+                            const kpiCancel = document.querySelectorAll('.kpi-box')[5].querySelector('.kpi-value');
+                            if (kpiCancel) kpiCancel.innerText = data.cancellationRate + '%';
 
                             // 2. Revenue Chart (Combo Chart)
                             const revenueData = Array.from({ length: 12 }, (_, i) => data.revenueByMonth[i + 1] || 0);
@@ -360,8 +365,16 @@
                                 }
                             });
 
-                            // 3. Top Products Chart
+                            // 3. Top Products Chart - Green Theme
                             const topProducts = data.topProducts;
+                            const greenGradient = [
+                                '#28a745',  // Xanh lá đậm
+                                '#20c997',  // Xanh ngọc
+                                '#5cb85c',  // Xanh lá nhạt
+                                '#17a2b8',  // Xanh dương nhạt
+                                '#6c757d'   // Xám
+                            ];
+
                             new Chart(document.getElementById('categoryBarChart'), {
                                 type: 'bar',
                                 data: {
@@ -369,7 +382,7 @@
                                     datasets: [{
                                         label: 'Đã bán',
                                         data: topProducts.map(p => p.totalSold),
-                                        backgroundColor: '#ffc107',
+                                        backgroundColor: topProducts.map((_, i) => greenGradient[i % greenGradient.length]),
                                         borderRadius: 4
                                     }]
                                 },
@@ -390,34 +403,50 @@
                             <td><b>\${order.buyer}</b></td>
                             <td class="text-muted">\${order.email}</td>
                             <td class="fw-bold text-success">$\${order.sumToTal}</td>
-                            <td>\${new Date(order.orderDate).toLocaleDateString()}</td>
+                            <td>\${new Date(order.orderDate).toLocaleDateString('vi-VN')}</td>
                         </tr>
                     `;
                                 tableBody.innerHTML += row;
                             });
 
-                            // 5. Weekly Chart (Dummy Data for now as API doesn't provide it yet)
+                            // 5. Weekly Chart (Dynamic Date Range)
+                            const days = [];
+                            const weeklyData = [];
+
+                            // Determine anchor date: use the latest date from data, or today if no data
+                            let anchorDate = new Date();
+                            const availableDates = Object.keys(data.weeklyRevenue || {}).sort();
+                            if (availableDates.length > 0) {
+                                const lastDateInData = new Date(availableDates[availableDates.length - 1]);
+                                // If data is in the past (older than 7 days from today), use data's max date
+                                // Otherwise use today to keep it looking "current"
+                                if ((new Date() - lastDateInData) > 7 * 24 * 60 * 60 * 1000) {
+                                    anchorDate = lastDateInData;
+                                }
+                            }
+
+                            for (let i = 6; i >= 0; i--) {
+                                const d = new Date(anchorDate);
+                                d.setDate(d.getDate() - i);
+                                const dateStr = d.toISOString().split('T')[0]; // YYYY-MM-DD
+                                days.push(d.toLocaleDateString('vi-VN', { weekday: 'short' }));
+                                weeklyData.push(data.weeklyRevenue[dateStr] || 0);
+                            }
+
                             new Chart(document.getElementById('weeklyChart'), {
                                 type: 'line',
                                 data: {
-                                    labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'],
+                                    labels: days,
                                     datasets: [
                                         {
-                                            label: 'Tuần này',
-                                            data: [120, 150, 180, 220, 190, 250, 300],
-                                            borderColor: '#6610f2',
+                                            label: 'Doanh thu',
+                                            data: weeklyData,
+                                            borderColor: '#28a745', // Green theme
                                             borderWidth: 2,
                                             tension: 0.4,
-                                            pointRadius: 0
-                                        },
-                                        {
-                                            label: 'Tuần trước',
-                                            data: [100, 130, 140, 160, 180, 200, 210],
-                                            borderColor: '#ced4da',
-                                            borderWidth: 2,
-                                            borderDash: [5, 5],
-                                            tension: 0.4,
-                                            pointRadius: 0
+                                            pointRadius: 3,
+                                            fill: true,
+                                            backgroundColor: 'rgba(40, 167, 69, 0.1)' // Green theme
                                         }
                                     ]
                                 },
@@ -431,34 +460,19 @@
                                             align: 'end',
                                             labels: { boxWidth: 10, font: { size: 9 } }
                                         }
-                                    },
-                                    scales: { y: { display: false }, x: { grid: { display: false } } }
+
+                                    }
                                 }
                             });
 
-                            // 6. Funnel Chart (Dummy Data)
-                            new Chart(document.getElementById('funnelChart'), {
-                                type: 'doughnut',
-                                data: {
-                                    labels: ['Xem', 'Giỏ hàng', 'Thanh toán', 'Mua'],
-                                    datasets: [{
-                                        data: [1000, 400, 200, 150],
-                                        backgroundColor: ['#e9ecef', '#dee2e6', '#adb5bd', '#495057']
-                                    }]
-                                },
-                                options: {
-                                    responsive: true,
-                                    maintainAspectRatio: false,
-                                    plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 9 } } } }
-                                }
-                            });
-
-                            // 7. Gauges (Dummy Data)
+                            // 6. Gauge Charts
+                            // Sales Target
+                            const percent = data.salesTargetPercent || 85;
                             new Chart(document.getElementById('gaugeSales'), {
                                 type: 'doughnut',
                                 data: {
                                     datasets: [{
-                                        data: [85, 15],
+                                        data: [percent, 100 - percent],
                                         backgroundColor: ['#28a745', '#e9ecef'],
                                         borderWidth: 0,
                                         circumference: 180,
@@ -473,11 +487,13 @@
                                 }
                             });
 
+                            // Satisfaction (Avg Rating)
+                            const rating = data.avgRating || 5.0;
                             new Chart(document.getElementById('gaugeSat'), {
                                 type: 'doughnut',
                                 data: {
                                     datasets: [{
-                                        data: [4.8, 0.2],
+                                        data: [rating, 5 - rating],
                                         backgroundColor: ['#0d6efd', '#e9ecef'],
                                         borderWidth: 0,
                                         circumference: 180,
@@ -492,11 +508,54 @@
                                 }
                             });
 
+                            // 7. Funnel Chart - SỬ DỤNG DỮ LIỆU THỰC
+                            const views = data.totalViews || 0;
+                            // Ước tính 'Thêm giỏ hàng' dựa trên lượt xem (khoảng 20%)
+                            const addToCart = Math.round(views * 0.2);
+                            // SỬ DỤNG DỮ LIỆU THỰC cho số đơn hàng
+                            const orders = data.totalOrders || 0;
+
+                            new Chart(document.getElementById('funnelChart'), {
+                                type: 'bar',
+                                data: {
+                                    labels: ['Lượt xem', 'Thêm giỏ hàng', 'Đơn hàng'],
+                                    datasets: [{
+                                        label: 'Số lượng',
+                                        data: [views, addToCart, orders],
+                                        backgroundColor: [
+                                            '#a3e4d7', // Light Teal/Green
+                                            '#20c997', // Medium Teal/Green
+                                            '#28a745'  // Strong Green
+                                        ],
+                                        borderRadius: 4,
+                                        barPercentage: 0.6,
+                                        minBarLength: 35 // Đảm bảo các thanh luôn hiển thị
+                                    }]
+                                },
+                                options: {
+                                    indexAxis: 'y',
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: { legend: { display: false } },
+                                    scales: { x: { beginAtZero: true } }
+                                }
+                            });
+
+                            // Update text for gauges
+                            const gaugeValSales = document.querySelector('#gaugeSales').nextElementSibling;
+                            if (gaugeValSales) gaugeValSales.innerText = Math.round(percent) + '%';
+
+                            const gaugeValSat = document.querySelector('#gaugeSat').nextElementSibling;
+                            if (gaugeValSat) gaugeValSat.innerText = rating.toFixed(1);
 
                         } catch (error) {
                             console.error("Error loading dashboard data:", error);
                         }
                     }
+
+                    // Update current date
+                    const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                    document.getElementById('currentDate').innerText = new Date().toLocaleDateString('vi-VN', dateOptions);
 
                     document.addEventListener("DOMContentLoaded", loadDashboardData);
                 </script>
