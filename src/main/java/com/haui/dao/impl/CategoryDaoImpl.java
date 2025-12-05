@@ -13,95 +13,113 @@ import com.haui.dao.CategoryDao;
 import com.haui.entity.Category;
 
 public class CategoryDaoImpl implements CategoryDao {
-	
-	private Connection con;
+
 	private ConnectionPool pool;
 
 	public CategoryDaoImpl() {
 		// Xác định bộ quản lý kết nối
 		this.pool = new ConnectionPoolImpl();
+	}
 
-		// Xin kết nối để làm việc
-		try {
-			this.con = pool.getConnection("CategoryDaoImpl");
+	// Lấy connection mới cho mỗi operation
+	private Connection getConnection() throws SQLException {
+		Connection con = pool.getConnection("CategoryDaoImpl");
+		if (con != null && con.getAutoCommit()) {
+			con.setAutoCommit(false);
+		}
+		return con;
+	}
 
-			// Hủy chế độ auto commit
-			if (this.con.getAutoCommit()) {
-				this.con.setAutoCommit(false);
+	// Trả connection về pool
+	private void releaseConnection(Connection con) {
+		if (con != null) {
+			try {
+				pool.releaseConnection(con, "CategoryDaoImpl");
+			} catch (SQLException e) {
+				e.printStackTrace();
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
 		}
 	}
 
 	@Override
 	public void insert(Category category) {
+		Connection con = null;
 		String sql = "INSERT INTO category(cate_name) VALUES (?)";
 		try {
+			con = getConnection();
 			PreparedStatement ps = con.prepareStatement(sql);
 			ps.setString(1, category.getName());
 			ps.executeUpdate();
-			this.con.commit();
+			con.commit();
 		} catch (SQLException e) {
 			e.printStackTrace();
 			try {
-				this.con.rollback();
+				if (con != null)
+					con.rollback();
 			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+		} finally {
+			releaseConnection(con);
 		}
-		
+
 	}
 
 	@Override
 	public void edit(Category category) {
+		Connection con = null;
 		String sql = "UPDATE category SET cate_name = ? WHERE cate_id = ?";
 		try {
+			con = getConnection();
 			PreparedStatement ps = con.prepareStatement(sql);
 			ps.setString(1, category.getName());
 			ps.setInt(2, category.getId());
 			ps.executeUpdate();
-			this.con.commit();
+			con.commit();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			try {
-				this.con.rollback();
+				if (con != null)
+					con.rollback();
 			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+		} finally {
+			releaseConnection(con);
 		}
-		
+
 	}
 
 	@Override
 	public void delete(int id) {
-		// TODO Auto-generated method stub
+		Connection con = null;
 		String sql = "DELETE FROM category WHERE cate_id = ?";
-		
+
 		try {
+			con = getConnection();
 			PreparedStatement ps = con.prepareStatement(sql);
 			ps.setInt(1, id);
 			ps.executeUpdate();
-			this.con.commit();
+			con.commit();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			try {
-				this.con.rollback();
+				if (con != null)
+					con.rollback();
 			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+		} finally {
+			releaseConnection(con);
 		}
 	}
 
 	@Override
 	public Category get(int id) {
+		Connection con = null;
 		String sql = "SELECT * FROM category WHERE cate_id = ? ";
 		try {
+			con = getConnection();
 			PreparedStatement ps = con.prepareStatement(sql);
 			ps.setInt(1, id);
 			ResultSet rs = ps.executeQuery();
@@ -117,14 +135,18 @@ public class CategoryDaoImpl implements CategoryDao {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} finally {
+			releaseConnection(con);
 		}
 		return null;
 	}
 
 	@Override
 	public Category get(String name) {
+		Connection con = null;
 		String sql = "SELECT * FROM Category WHERE cate_name = ? ";
 		try {
+			con = getConnection();
 			PreparedStatement ps = con.prepareStatement(sql);
 			ps.setString(1, name);
 			ResultSet rs = ps.executeQuery();
@@ -139,17 +161,20 @@ public class CategoryDaoImpl implements CategoryDao {
 
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} finally {
+			releaseConnection(con);
 		}
 		return null;
 	}
 
 	@Override
 	public List<Category> getAll() {
+		Connection con = null;
 		List<Category> categories = new ArrayList<Category>();
 		String sql = "SELECT * FROM Category";
 		try {
+			con = getConnection();
 			PreparedStatement ps = con.prepareStatement(sql);
 			ResultSet rs = ps.executeQuery();
 
@@ -164,6 +189,8 @@ public class CategoryDaoImpl implements CategoryDao {
 
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} finally {
+			releaseConnection(con);
 		}
 
 		return categories;
@@ -171,9 +198,11 @@ public class CategoryDaoImpl implements CategoryDao {
 
 	@Override
 	public List<Category> search(String username) {
+		Connection con = null;
 		List<Category> categories = new ArrayList<Category>();
 		String sql = "SELECT * FROM category WHERE name LIKE ? ";
 		try {
+			con = getConnection();
 			PreparedStatement ps = con.prepareStatement(sql);
 			ps.setString(1, "%" + username + "%");
 			ResultSet rs = ps.executeQuery();
@@ -189,6 +218,8 @@ public class CategoryDaoImpl implements CategoryDao {
 
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} finally {
+			releaseConnection(con);
 		}
 
 		return categories;

@@ -17,31 +17,40 @@ import com.haui.service.Impl.CategoryServiceImpl;
 
 public class ProductDaoImpl implements ProductDao {
 
-	private Connection con;
 	private ConnectionPool pool;
 	CategoryService categoryService = new CategoryServiceImpl();
 
 	public ProductDaoImpl() {
 		// Xác định bộ quản lý kết nối
 		this.pool = new ConnectionPoolImpl();
+	}
 
-		// Xin kết nối để làm việc
-		try {
-			this.con = pool.getConnection("ProductDaoImpl");
+	// Lấy connection mới cho mỗi operation
+	private Connection getConnection() throws SQLException {
+		Connection con = pool.getConnection("ProductDaoImpl");
+		if (con != null && con.getAutoCommit()) {
+			con.setAutoCommit(false);
+		}
+		return con;
+	}
 
-			// Hủy chế độ auto commit
-			if (this.con.getAutoCommit()) {
-				this.con.setAutoCommit(false);
+	// Trả connection về pool
+	private void releaseConnection(Connection con) {
+		if (con != null) {
+			try {
+				pool.releaseConnection(con, "ProductDaoImpl");
+			} catch (SQLException e) {
+				e.printStackTrace();
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
 		}
 	}
 
 	@Override
 	public void insert(Product product) {
+		Connection con = null;
 		String sql = "INSERT INTO Product(name, price, image, cate_id, des, quantity) VALUES (?,?,?,?,?,?)";
 		try {
+			con = getConnection();
 			PreparedStatement ps = con.prepareStatement(sql);
 			ps.setString(1, product.getName());
 			ps.setLong(2, product.getPrice());
@@ -50,22 +59,27 @@ public class ProductDaoImpl implements ProductDao {
 			ps.setString(5, product.getDes());
 			ps.setInt(6, product.getQuantity());
 			ps.executeUpdate();
-			this.con.commit();
+			con.commit();
 		} catch (Exception e) {
 			e.printStackTrace();
 			try {
-				this.con.rollback();
+				if (con != null)
+					con.rollback();
 			} catch (SQLException e1) {
 				e1.printStackTrace();
 			}
+		} finally {
+			releaseConnection(con);
 		}
 
 	}
 
 	@Override
 	public void edit(Product product) {
+		Connection con = null;
 		String sql = "UPDATE Product SET name = ? , price = ?, image = ?,cate_id=?, des=?, quantity=?  WHERE id = ?";
 		try {
+			con = getConnection();
 			PreparedStatement ps = con.prepareStatement(sql);
 			ps.setString(1, product.getName());
 			ps.setDouble(2, product.getPrice());
@@ -75,41 +89,51 @@ public class ProductDaoImpl implements ProductDao {
 			ps.setInt(6, product.getQuantity());
 			ps.setInt(7, product.getId());
 			ps.executeUpdate();
-			this.con.commit();
+			con.commit();
 		} catch (Exception e) {
 			e.printStackTrace();
 			try {
-				this.con.rollback();
+				if (con != null)
+					con.rollback();
 			} catch (SQLException e1) {
 				e1.printStackTrace();
 			}
+		} finally {
+			releaseConnection(con);
 		}
 	}
 
 	@Override
 	public void delete(int id) {
+		Connection con = null;
 		String sql = "DELETE FROM Product WHERE id=?";
 		try {
+			con = getConnection();
 			PreparedStatement ps = con.prepareStatement(sql);
 			ps.setInt(1, id);
 			ps.executeUpdate();
-			this.con.commit();
+			con.commit();
 		} catch (SQLException e) {
 			e.printStackTrace();
 			try {
-				this.con.rollback();
+				if (con != null)
+					con.rollback();
 			} catch (SQLException e1) {
 				e1.printStackTrace();
 			}
+		} finally {
+			releaseConnection(con);
 		}
 	}
 
 	@Override
 	public Product get(int id) {
+		Connection con = null;
 		String sql = "SELECT product.id, product.name AS p_name, product.price, product.image,product.des, product.quantity, category.cate_name AS c_name, "
 				+ "category.cate_id AS c_id " + "FROM product INNER JOIN category "
 				+ "ON product.cate_id = category.cate_id WHERE product.id=?";
 		try {
+			con = getConnection();
 			PreparedStatement ps = con.prepareStatement(sql);
 			ps.setInt(1, id);
 			ResultSet rs = ps.executeQuery();
@@ -129,22 +153,21 @@ public class ProductDaoImpl implements ProductDao {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			try {
-				this.con.rollback();
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
+		} finally {
+			releaseConnection(con);
 		}
 		return null;
 	}
 
 	@Override
 	public List<Product> getAll() {
+		Connection con = null;
 		List<Product> productList = new ArrayList<Product>();
 		String sql = "SELECT product.id, product.name AS p_name, product.price, product.image, product.des, product.quantity,"
 				+ " category.cate_name AS c_name, category.cate_id AS c_id  " + "FROM product INNER JOIN category "
 				+ "ON product.cate_id = category.cate_id";
 		try {
+			con = getConnection();
 			PreparedStatement ps = con.prepareStatement(sql);
 			ResultSet rs = ps.executeQuery();
 
@@ -164,6 +187,8 @@ public class ProductDaoImpl implements ProductDao {
 
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} finally {
+			releaseConnection(con);
 		}
 
 		return productList;
@@ -171,9 +196,11 @@ public class ProductDaoImpl implements ProductDao {
 
 	@Override
 	public List<Product> search(String keyword) {
+		Connection con = null;
 		List<Product> productList = new ArrayList<Product>();
 		String sql = "SELECT * FROM product WHERE name LIKE ? ";
 		try {
+			con = getConnection();
 			PreparedStatement ps = con.prepareStatement(sql);
 			ps.setString(1, "%" + keyword + "%");
 			ResultSet rs = ps.executeQuery();
@@ -202,6 +229,8 @@ public class ProductDaoImpl implements ProductDao {
 
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} finally {
+			releaseConnection(con);
 		}
 
 		return productList;
@@ -209,6 +238,7 @@ public class ProductDaoImpl implements ProductDao {
 
 	@Override
 	public List<Product> seachByCategory(int cate_id) {
+		Connection con = null;
 		List<Product> productList = new ArrayList<Product>();
 		String sql = "SELECT product.id, product.name AS p_name, "
 				+ "product.price, product.image, product.des, product.quantity, "
@@ -216,6 +246,7 @@ public class ProductDaoImpl implements ProductDao {
 				+ " FROM Product , Category where product.cate_id = category.cate_id " + "and Category.cate_id=?";
 
 		try {
+			con = getConnection();
 			PreparedStatement ps = con.prepareStatement(sql);
 			ps.setInt(1, cate_id);
 			ResultSet rs = ps.executeQuery();
@@ -236,6 +267,8 @@ public class ProductDaoImpl implements ProductDao {
 
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} finally {
+			releaseConnection(con);
 		}
 
 		return productList;
@@ -243,6 +276,7 @@ public class ProductDaoImpl implements ProductDao {
 
 	@Override
 	public List<Product> seachByName(String productName) {
+		Connection con = null;
 		List<Product> productList = new ArrayList<Product>();
 		String sql = "SELECT product.id, product.name AS p_name, "
 				+ "product.price, product.image, product.des, product.quantity, "
@@ -250,6 +284,7 @@ public class ProductDaoImpl implements ProductDao {
 				+ "where product.cate_id = category.cate_id and Product.name like ? ";
 
 		try {
+			con = getConnection();
 			PreparedStatement ps = con.prepareStatement(sql);
 			ps.setString(1, "%" + productName + "%");
 			ResultSet rs = ps.executeQuery();
@@ -270,6 +305,8 @@ public class ProductDaoImpl implements ProductDao {
 
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} finally {
+			releaseConnection(con);
 		}
 
 		return productList;
@@ -277,6 +314,7 @@ public class ProductDaoImpl implements ProductDao {
 
 	@Override
 	public List<Product> getAllProducts(int pageNumber, int pageSize) {
+		Connection con = null;
 		List<Product> products = new ArrayList<Product>();
 		String sql = "SELECT product.id, product.name AS p_name, product.price, product.image, product.des, product.quantity, "
 				+
@@ -286,6 +324,7 @@ public class ProductDaoImpl implements ProductDao {
 				"ORDER BY product.id " +
 				"OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 		try {
+			con = getConnection();
 			PreparedStatement ps = con.prepareStatement(sql);
 			int offset = (pageNumber - 1) * pageSize;
 			ps.setInt(1, offset);
@@ -308,17 +347,15 @@ public class ProductDaoImpl implements ProductDao {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			try {
-				this.con.rollback();
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
+		} finally {
+			releaseConnection(con);
 		}
 		return products;
 	}
 
 	@Override
 	public List<Product> seachByName(String productName, int pageNumber, int pageSize) {
+		Connection con = null;
 		List<Product> products = new ArrayList<>();
 		String sql = "SELECT product.id, product.name AS p_name, product.price, product.image, product.des, product.quantity, "
 				+
@@ -330,6 +367,7 @@ public class ProductDaoImpl implements ProductDao {
 				"OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
 		try {
+			con = getConnection();
 			PreparedStatement ps = con.prepareStatement(sql);
 			int offset = (pageNumber - 1) * pageSize;
 			ps.setString(1, "%" + productName + "%");
@@ -351,30 +389,32 @@ public class ProductDaoImpl implements ProductDao {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-			try {
-				con.rollback();
-			} catch (SQLException ex) {
-				ex.printStackTrace();
-			}
+		} finally {
+			releaseConnection(con);
 		}
 		return products;
 	}
 
 	@Override
 	public void updateViewCount(int id) {
+		Connection con = null;
 		String sql = "UPDATE Product SET view_count = view_count + 1 WHERE id = ?";
 		try {
+			con = getConnection();
 			PreparedStatement ps = con.prepareStatement(sql);
 			ps.setInt(1, id);
 			ps.executeUpdate();
-			this.con.commit();
+			con.commit();
 		} catch (SQLException e) {
 			e.printStackTrace();
 			try {
-				this.con.rollback();
+				if (con != null)
+					con.rollback();
 			} catch (SQLException e1) {
 				e1.printStackTrace();
 			}
+		} finally {
+			releaseConnection(con);
 		}
 	}
 }
